@@ -26,13 +26,14 @@ def progress_function(stream,file_handle, bytes_remaining):
 
 def finish_function(stream, file_path):
     sys.stdout.write(' File Downloaded successfully \nPath to file:  {path}'.format(path=file_path))
-
 def returnUserURL():
     print('WELCOME TO YOUTUBE DOWNLOADER.')
     print('Enter youtube link below:  ')
     url = str(input())
-    return url
-
+    if url and  url.startswith('http://www.youtube.com'):
+        return url
+    else:
+        return None
 
 def getDownloadFileFormat():
     print('Download Audio or Video? [A/V]')
@@ -58,12 +59,28 @@ def init_getFileDetails(fileType,url):
                 fileSize /= MB
                 fileSize = round(fileSize, 2)
                 return [file_name if file_name else None , fileSize if fileSize else None, streamObj if streamObj else None]
-        except:
-            print('Failed to get file details')
-        finally:
-            display_init_complete()
-    else:
-        print('Please enter A to download Audio or V to download Video !!')
+        except pytube.exceptions.VideoUnavailable:
+            print('- - DOWNLOAD FAILED: Video is unavailable - - ')
+        except pytube.exceptions.AgeRestrictedError:
+            print('- - DOWNLOAD FAILED: Video is age restricted - - ')
+        except pytube.exceptions.HTMLParseError:
+            print('- - DOWNLOAD FAILED: HTML Parsing error - -')
+        except pytube.exceptions.LiveStreamError:
+            print('- - DOWNLOAD FAILED: LiveStreamError - - ')
+        except pytube.exceptions.MaxRetriesExceeded:
+            print('- - DOWNLOAD FAILED: Max retries exceeded - - ')
+        except pytube.exceptions.MembersOnly:
+            print('- - DOWNLOAD FAILED: This video is restricted to members only - - ')
+        except pytube.exceptions.PytubeError:
+            print('- - DOWNLOAD FAILED: Downloader failed.  - - ')
+        except pytube.exceptions.RecordingUnavailable:
+            print('- - DOWNLOAD FAILED: This recording is unavailable - - ')
+        except pytube.exceptions.VideoPrivate:
+            print('- - DOWNLOAD FAILED: This video is a private video - - ')
+        except pytube.exceptions.VideoRegionBlocked:
+            print('- - DOWNLOAD FAILED: This video is unavailable in your region - - ')
+        else:
+            print('Please enter A to download Audio or V to download Video !!')
 
 
 def downloadFile(file_type, file_title, streamObj):
@@ -75,26 +92,8 @@ def downloadFile(file_type, file_title, streamObj):
        elif(file_type and file_type == 'Video'):
            print('--- Starting Video download --')
            streamObj.download(output_path=videoLocation, filename=file_title)
-    except pytube.exceptions.VideoUnavailable:
-        print('- - DOWNLOAD FAILED: Video is unavailable - - ')
-    except pytube.exceptions.AgeRestrictedError:
-        print('- - DOWNLOAD FAILED: Video is age restricted - - ')
-    except pytube.exceptions.HTMLParseError:
-        print('- - DOWNLOAD FAILED: HTML Parsing error - -')
-    except pytube.exceptions.LiveStreamError:
-        print('- - DOWNLOAD FAILED: LiveStreamError - - ')
-    except pytube.exceptions.MaxRetriesExceeded:
-        print('- - DOWNLOAD FAILED: Max retries exceeded - - ')
-    except pytube.exceptions.MembersOnly:
-        print('- - DOWNLOAD FAILED: This video is restricted to members only - - ')
-    except pytube.exceptions.PytubeError:
-        print('- - DOWNLOAD FAILED: Downloader failed.  - - ')
-    except pytube.exceptions.RecordingUnavailable:
-        print('- - DOWNLOAD FAILED: This recording is unavailable - - ')
-    except pytube.exceptions.VideoPrivate:
-        print('- - DOWNLOAD FAILED: This video is a private video - - ')
-    except pytube.exceptions.VideoRegionBlocked:
-        print('- - DOWNLOAD FAILED: This video is unavailable in your region - - ')
+    except:
+        print('- - An error might have occured. Please try again - -')
 
 def display_init_complete():
     sys.stdout.write('- - Download Initializing complete - - ')
@@ -106,12 +105,15 @@ def __start_downloader__():
     global File_Title
     global File_Size
     URL = returnUserURL()
-    File_Type = getDownloadFileFormat()
-    init_results = init_getFileDetails(File_Type, URL)
-    if (type(init_results) != list):
-        print('- - ERROR: Failed to initialize downloader - - ')
-    else:
-        [File_Title, File_Size, streamObj] = init_results
-        downloadFile(File_Type, File_Title, streamObj)
+    if(type(URL) == str):
+        File_Type = getDownloadFileFormat()
+        init_results = init_getFileDetails(File_Type, URL)
+        try:
+            [File_Title, File_Size, streamObj] = init_results
+            downloadFile(File_Type, File_Title, streamObj)
+        except:
+            print('')
+    elif(URL == None):
+        print('XX - - Enter a valid youtube link - - XX')
 
 __start_downloader__()
