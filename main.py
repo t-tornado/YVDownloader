@@ -1,7 +1,9 @@
 from pytube import YouTube
 import pytube.request
 import sys
+import os
 
+hostname = os.environ['HOME']
 # Tasks
 # Print an alert to user to receive video URL from terminal
 # Request whether the file should be audio or video.
@@ -13,24 +15,24 @@ import sys
 
 MB = 1048576
 pytube.request.default_range_size = 1048576
-videoLocation = '/home/tornado/Downloads/Video'
-audioLocation = '/home/tornado/Downloads/Music'
+videoLocation = '{}/Downloads/Video'.format(hostname)
+audioLocation = '{}/Downloads/Music'.format(hostname)
 
 def progress_function(stream,file_handle, bytes_remaining):
     curr = stream.filesize - bytes_remaining
     done = int(50 * curr / stream.filesize)
     percent = round(curr/stream.filesize * 100, 1)
-    sys.stdout.write("\r[{done}{pending}] || {percentage}% ".format(done='█' * done,pending='=' * (50 - done), percentage=percent))
+    sys.stdout.write("\u001b[32m\r[{done}{pending}] || {percentage}% ".format(done='█' * done,pending='=' * (50 - done), percentage=percent))
     sys.stdout.flush()
 
 
 def finish_function(stream, file_path):
     sys.stdout.write(' File Downloaded successfully \nPath to file:  {path}'.format(path=file_path))
 def returnUserURL():
-    print('WELCOME TO YOUTUBE DOWNLOADER.')
-    print('Enter youtube link below:  ')
+    print('\u001b[1mWELCOME TO YOUTUBE DOWNLOADER.')
+    print('Enter youtube link below:  \u2193')
     url = str(input())
-    if url and  url.startswith('http://www.youtube.com'):
+    if url and  url.startswith('https://www.youtube.com'):
         return url
     else:
         return None
@@ -60,19 +62,19 @@ def init_getFileDetails(fileType,url):
                 fileSize = round(fileSize, 2)
                 return [file_name if file_name else None , fileSize if fileSize else None, streamObj if streamObj else None]
         except pytube.exceptions.VideoUnavailable:
-            print('- - DOWNLOAD FAILED: Video is unavailable - - ')
+            print('\u001b[31m- - DOWNLOAD FAILED: Video is unavailable - - ')
         except pytube.exceptions.AgeRestrictedError:
-            print('- - DOWNLOAD FAILED: Video is age restricted - - ')
+            print('\u001b[31m- - DOWNLOAD FAILED: Video is age restricted - - ')
         except pytube.exceptions.HTMLParseError:
-            print('- - DOWNLOAD FAILED: HTML Parsing error - -')
+            print('\u001b[31m- - DOWNLOAD FAILED: HTML Parsing error - -')
         except pytube.exceptions.LiveStreamError:
-            print('- - DOWNLOAD FAILED: LiveStreamError - - ')
+            print('\u001b[31m- - DOWNLOAD FAILED: LiveStreamError - - ')
         except pytube.exceptions.MaxRetriesExceeded:
-            print('- - DOWNLOAD FAILED: Max retries exceeded - - ')
+            print('\u001b[31m- - DOWNLOAD FAILED: Max retries exceeded - - ')
         except pytube.exceptions.MembersOnly:
-            print('- - DOWNLOAD FAILED: This video is restricted to members only - - ')
+            print('\u001b[31m- - DOWNLOAD FAILED: This video is restricted to members only - - ')
         except pytube.exceptions.PytubeError:
-            print('- - DOWNLOAD FAILED: Downloader failed.  - - ')
+            print('\u001b[31m- - DOWNLOAD FAILED: Downloader failed.  - - ')
         except pytube.exceptions.RecordingUnavailable:
             print('- - DOWNLOAD FAILED: This recording is unavailable - - ')
         except pytube.exceptions.VideoPrivate:
@@ -114,6 +116,6 @@ def __start_downloader__():
         except:
             print('')
     elif(URL == None):
-        print('XX - - Enter a valid youtube link - - XX')
+        print('\u001b[31mXX \u001b[1m- - Enter a valid youtube link - - XX')
 
 __start_downloader__()
