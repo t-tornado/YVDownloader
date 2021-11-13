@@ -1,7 +1,7 @@
 <h1>YVDownloader</h1>
 
 ## About
-A python script for downloading video and/or audio files from youtube.
+A python program for downloading video and/or audio files from youtube.
 This script takes a youtube url and returns video and/or audio stream objects to be download. 
 This script access the current user to set the download paths.
 
